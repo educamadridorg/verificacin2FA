@@ -3,90 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Página de Respuestas</title>
-    <link rel="stylesheet" href="scratch.css">
+    <title>Página de Inicio de Sesión y Respuestas</title>
+    <link rel="stylesheet" href="style.css"> <!-- Asegúrate de tener este archivo CSS -->
 </head>
 <body>
 
+<!-- Formulario de Inicio de Sesión -->
+<div id="loginForm" class="form-container">
+    <h2>Iniciar sesión</h2>
+    <form id="login">
+        <div class="input-group">
+            <input type="email" id="username" placeholder="Correo electrónico" required>
+        </div>
+        <div class="input-group">
+            <input type="password" id="password" placeholder="Contraseña" required>
+        </div>
+        <button type="submit" class="btn">Acceder</button>
+    </form>
+</div>
+
 <!-- Formulario de Respuestas -->
-<div id="responsesForm">
+<div id="responsesForm" class="form-container" style="display:none;">
     <h2>Formulario de Respuestas</h2>
     <form id="responseForm">
-        <textarea id="userResponse" placeholder="Escribe tu respuesta aquí" required></textarea>
-        <button type="submit">Enviar Respuesta</button>
+        <div class="input-group">
+            <textarea id="userResponse" placeholder="Escribe tu respuesta aquí" required></textarea>
+        </div>
+        <button type="submit" class="btn">Enviar Respuesta</button>
     </form>
 
     <h3>Tus Respuestas</h3>
     <div id="responseContainer"></div>
+    <button id="logout" class="btn">Cerrar Sesión</button>
 </div>
 
 <!-- Firebase SDK -->
 <script type="module">
-    // Importar Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js"; // Importar Realtime Database
-
-    document.addEventListener("DOMContentLoaded", () => {
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAw6_-fB9f3xi6feMwKnY6gejoOqXkvtCE",
-            authDomain: "web-inicio-sesion-c8e9f.firebaseapp.com",
-            databaseURL: "https://web-inicio-sesion-c8e9f-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "web-inicio-sesion-c8e9f",
-            storageBucket: "web-inicio-sesion-c8e9f.firebasestorage.app",
-            messagingSenderId: "422022760273",
-            appId: "1:422022760273:web:20d8e37e976876f1b8b570",
-            measurementId: "G-DXZ08ZYVHY"
-        };
-
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Elementos del DOM
-        const responseForm = document.getElementById("responseForm");
-        const responseContainer = document.getElementById("responseContainer");
-
-        // Función para cargar respuestas desde Firebase
-        function cargarRespuestas() {
-            responseContainer.innerHTML = ""; // Limpiar respuestas previas
-            const respuestasRef = ref(db, "respuestas");
-
-            onValue(respuestasRef, (snapshot) => {
-                responseContainer.innerHTML = ""; // Limpiar antes de agregar nuevas respuestas
-                snapshot.forEach((childSnapshot) => {
-                    const respuesta = childSnapshot.val().texto;
-                    const div = document.createElement("div");
-                    div.classList.add("response");
-                    div.textContent = respuesta;
-                    responseContainer.appendChild(div);
-                });
-            });
-        }
-
-        // Enviar respuesta a Firebase
-        responseForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            const userResponse = document.getElementById("userResponse").value.trim();
-            if (userResponse) {
-                const respuestasRef = ref(db, "respuestas");
-                push(respuestasRef, {
-                    texto: userResponse,
-                    timestamp: Date.now()
-                }).then(() => {
-                    console.log("Respuesta guardada correctamente");
-                    document.getElementById("userResponse").value = ""; // Limpiar campo de texto
-                    cargarRespuestas(); // Recargar respuestas
-                }).catch((error) => {
-                    console.error("Error al guardar respuesta en Firebase:", error);
-                });
-            }
-        });
-
-        // Cargar respuestas al cargar la página
-        cargarRespuestas();
-    });
+    // Aquí sigue tu código JavaScript para Firebase
+    // (el que ya has proporcionado previamente).
 </script>
 
 </body>
