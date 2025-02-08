@@ -133,15 +133,16 @@
             // Comprobar si el usuario está autenticado
             onAuthStateChanged(auth, (user) => {
                 if (user) {
-                    loginForm.style.display = "none";
-                    responsesForm.style.display = "block";
+                    loginForm.style.display = "none"; // Ocultar el formulario de inicio de sesión
+                    responsesForm.style.display = "block"; // Mostrar el formulario de respuestas
                     cargarRespuestas(); // Cargar las respuestas cuando el usuario esté autenticado
                 } else {
-                    loginForm.style.display = "block";
-                    responsesForm.style.display = "none";
+                    loginForm.style.display = "block"; // Mostrar formulario de inicio de sesión si no está autenticado
+                    responsesForm.style.display = "none"; // Ocultar formulario de respuestas
                 }
             });
         });
     </script>
+
 </body>
 </html>
