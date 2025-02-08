@@ -139,6 +139,15 @@
             document.getElementById('loginForm').style.display = 'none';
             document.getElementById('responsesForm').style.display = 'block';
             cargarRespuestas(); // Cargar respuestas si el usuario está autenticado
+            db.ref('respuestas').push({
+    texto: userResponse,
+    timestamp: Date.now()
+}).then(() => {
+    console.log("Respuesta guardada correctamente en Firebase");
+}).catch((error) => {
+    console.error("Error al guardar respuesta en Firebase:", error);
+});
+
         }
     });
 </script>
