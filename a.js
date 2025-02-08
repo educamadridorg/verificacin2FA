@@ -37,6 +37,22 @@
 
     document.getElementById("userResponse").value = ""; // Limpiar el campo
     cargarRespuestas();
+            // Cargar respuestas desde Firebase y mostrarlas
+function cargarRespuestas() {
+    onValue(ref(db, "respuestas"), (snapshot) => {
+        let contenedor = document.getElementById("responseContainer");
+        contenedor.innerHTML = "";  // Limpiar el contenedor antes de cargar nuevas respuestas
+
+        snapshot.forEach((childSnapshot) => {
+            let respuesta = childSnapshot.val().texto;
+            let div = document.createElement("div");
+            div.className = "respuesta";
+            div.textContent = respuesta;
+            contenedor.appendChild(div);
+        });
+    });
+}
+
 });
 
     });
