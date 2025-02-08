@@ -25,6 +25,20 @@
     .catch((error) => {
       // Manejar errores
       alert("Error al registrarse: " + error.message);
+        document.getElementById("responseForm").addEventListener("submit", function (event) {
+    event.preventDefault();
+    let respuesta = document.getElementById("userResponse").value;
+    if (!respuesta.trim()) return;
+
+    push(ref(db, "respuestas"), {
+      texto: respuesta,
+      timestamp: Date.now()
+    });
+
+    document.getElementById("userResponse").value = ""; // Limpiar el campo
+    cargarRespuestas();
+});
+
     });
 });
 
