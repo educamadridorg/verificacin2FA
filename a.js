@@ -10,6 +10,24 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 </head>
 <body>
+    document.getElementById("register").addEventListener("submit", function (event) {
+  event.preventDefault();
+
+  let email = document.getElementById("registerEmail").value;
+  let password = document.getElementById("registerPassword").value;
+
+  // Registrar al usuario
+  firebase.auth().createUserWithEmailAndPassword(email, password)
+    .then(() => {
+      alert("¡Registro exitoso!");
+      // Puedes redirigir al usuario o hacer algo después del registro
+    })
+    .catch((error) => {
+      // Manejar errores
+      alert("Error al registrarse: " + error.message);
+    });
+});
+
     <!-- Formulario de Inicio de Sesión -->
     <div id="loginForm">
         <h2>Iniciar sesión</h2>
