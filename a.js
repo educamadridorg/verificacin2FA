@@ -44,23 +44,30 @@
     <button id="logout">Cerrar Sesión</button>
 </div>
 
-<script>
-    // Configuración de Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyAw6_-fB9f3xi6feMwKnY6gejoOqXkvtCE",
-        authDomain: "web-inicio-sesion-c8e9f.firebaseapp.com",
-        databaseURL: "https://web-inicio-sesion-c8e9f-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "web-inicio-sesion-c8e9f",
-        storageBucket: "web-inicio-sesion-c8e9f.firebasestorage.app",
-        messagingSenderId: "422022760273",
-        appId: "1:422022760273:web:7d356af281e92508b8b570",
-        measurementId: "G-R4GHBN5WQT"
-    };
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-    // Inicializar Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyAw6_-fB9f3xi6feMwKnY6gejoOqXkvtCE",
+    authDomain: "web-inicio-sesion-c8e9f.firebaseapp.com",
+    databaseURL: "https://web-inicio-sesion-c8e9f-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "web-inicio-sesion-c8e9f",
+    storageBucket: "web-inicio-sesion-c8e9f.firebasestorage.app",
+    messagingSenderId: "422022760273",
+    appId: "1:422022760273:web:20d8e37e976876f1b8b570",
+    measurementId: "G-DXZ08ZYVHY"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
 
     // Manejo de inicio de sesión
     document.getElementById('login').addEventListener('submit', function(event) {
