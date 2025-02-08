@@ -7,102 +7,102 @@
     <link rel="stylesheet" href="scratch.css">
     
     <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
-        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
+<script type="module">
+  // Importar las funciones necesarias de Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
+  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
 
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAw6_-fB9f3xi6feMwKnY6gejoOqXkvtCE",
-            authDomain: "web-inicio-sesion-c8e9f.firebaseapp.com",
-            databaseURL: "https://web-inicio-sesion-c8e9f-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "web-inicio-sesion-c8e9f",
-            storageBucket: "web-inicio-sesion-c8e9f.appspot.com",
-            messagingSenderId: "422022760273",
-            appId: "1:422022760273:web:20d8e37e976876f1b8b570",
-            measurementId: "G-DXZ08ZYVHY"
-        };
+  // Configuración de Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyAw6_-fB9f3xi6feMwKnY6gejoOqXkvtCE",
+    authDomain: "web-inicio-sesion-c8e9f.firebaseapp.com",
+    databaseURL: "https://web-inicio-sesion-c8e9f-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "web-inicio-sesion-c8e9f",
+    storageBucket: "web-inicio-sesion-c8e9f.firebasestorage.app",
+    messagingSenderId: "422022760273",
+    appId: "1:422022760273:web:20d8e37e976876f1b8b570",
+    measurementId: "G-DXZ08ZYVHY"
+  };
 
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+  // Inicializar Firebase
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getDatabase(app);
 
-        // Manejo de inicio de sesión
-        document.getElementById('login').addEventListener('submit', function(event) {
-            event.preventDefault();
+  // Manejo de inicio de sesión
+  document.getElementById('login').addEventListener('submit', function(event) {
+      event.preventDefault();
 
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+      const email = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-            signInWithEmailAndPassword(auth, username, password)
-                .then(() => {
-                    document.getElementById('loginForm').style.display = 'none';
-                    document.getElementById('responsesForm').style.display = 'block';
-                    cargarRespuestas();
-                })
-                .catch(error => {
-                    alert("Error de autenticación: " + error.message);
-                });
-        });
+      signInWithEmailAndPassword(auth, email, password)
+          .then(() => {
+              document.getElementById('loginForm').style.display = 'none';
+              document.getElementById('responsesForm').style.display = 'block';
+              cargarRespuestas();
+          })
+          .catch(error => {
+              alert("Error de autenticación: " + error.message);
+          });
+  });
 
-        // Función para cargar las respuestas desde Firebase
-        function cargarRespuestas() {
-            const responseContainer = document.getElementById('responseContainer');
-            responseContainer.innerHTML = ''; // Limpiar respuestas previas
+  // Función para cargar respuestas desde Firebase
+  function cargarRespuestas() {
+      const responseContainer = document.getElementById('responseContainer');
+      responseContainer.innerHTML = ''; // Limpiar respuestas previas
 
-            const respuestasRef = ref(db, 'respuestas');
-            onValue(respuestasRef, (snapshot) => {
-                responseContainer.innerHTML = ''; // Limpiar antes de agregar nuevas respuestas
-                snapshot.forEach(childSnapshot => {
-                    const respuesta = childSnapshot.val().texto;
-                    const div = document.createElement('div');
-                    div.classList.add('response');
-                    div.textContent = respuesta;
-                    responseContainer.appendChild(div);
-                });
-            });
-        }
+      const respuestasRef = ref(db, 'respuestas');
+      onValue(respuestasRef, (snapshot) => {
+          responseContainer.innerHTML = ''; // Limpiar antes de agregar nuevas respuestas
+          snapshot.forEach(childSnapshot => {
+              const respuesta = childSnapshot.val().texto;
+              const div = document.createElement('div');
+              div.classList.add('response');
+              div.textContent = respuesta;
+              responseContainer.appendChild(div);
+          });
+      });
+  }
 
-        // Enviar respuestas a Firebase
-        document.getElementById('responseForm').addEventListener('submit', function(event) {
-            event.preventDefault();
+  // Enviar respuesta a Firebase
+  document.getElementById('responseForm').addEventListener('submit', function(event) {
+      event.preventDefault();
 
-            const userResponse = document.getElementById('userResponse').value;
+      const userResponse = document.getElementById('userResponse').value.trim();
+      if (userResponse) {
+          const respuestasRef = ref(db, 'respuestas');
+          push(respuestasRef, {
+              texto: userResponse,
+              timestamp: Date.now()
+          }).then(() => {
+              console.log("Respuesta guardada correctamente");
+              document.getElementById('userResponse').value = ''; // Limpiar campo de texto
+          }).catch((error) => {
+              console.error("Error al guardar respuesta en Firebase:", error);
+          });
+      }
+  });
 
-            if (userResponse.trim()) {
-                const respuestasRef = ref(db, 'respuestas');
-                push(respuestasRef, {
-                    texto: userResponse,
-                    timestamp: Date.now()
-                }).then(() => {
-                    console.log("Respuesta guardada correctamente en Firebase");
-                    document.getElementById('userResponse').value = '';
-                    cargarRespuestas(); // Actualizar respuestas
-                }).catch((error) => {
-                    console.error("Error al guardar respuesta en Firebase:", error);
-                });
-            }
-        });
+  // Cerrar sesión
+  document.getElementById('logout').addEventListener('click', function() {
+      signOut(auth).then(() => {
+          document.getElementById('loginForm').style.display = 'block';
+          document.getElementById('responsesForm').style.display = 'none';
+      });
+  });
 
-        // Cerrar sesión
-        document.getElementById('logout').addEventListener('click', function() {
-            signOut(auth).then(() => {
-                document.getElementById('loginForm').style.display = 'block';
-                document.getElementById('responsesForm').style.display = 'none';
-            });
-        });
+  // Comprobar si el usuario ya está autenticado al cargar la página
+  onAuthStateChanged(auth, (user) => {
+      if (user) {
+          document.getElementById('loginForm').style.display = 'none';
+          document.getElementById('responsesForm').style.display = 'block';
+          cargarRespuestas();
+      }
+  });
+</script>
 
-        // Verificar estado del usuario al cargar la página
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                document.getElementById('loginForm').style.display = 'none';
-                document.getElementById('responsesForm').style.display = 'block';
-                cargarRespuestas();
-            }
-        });
-    </script>
 </head>
 <body>
 
