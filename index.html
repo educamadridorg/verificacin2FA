@@ -4,92 +4,144 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Página de Respuestas</title>
-    <link rel="stylesheet" href="scratch.css">
+    <link rel="stylesheet" href="scratch.css"> <!-- Asegúrate de que tienes tu CSS aquí -->
 </head>
 <body>
 
     <!-- Formulario de Inicio de Sesión -->
-<div id="loginForm" class="form-container">
-    <h2>Iniciar sesión</h2>
-    <form id="login">
-        <div class="input-group">
-            <input type="email" id="username" placeholder="Correo electrónico" required>
-        </div>
-        <div class="input-group">
-            <input type="password" id="password" placeholder="Contraseña" required>
-        </div>
-        <button type="submit" class="btn">Enviar respuesta</button>
-    </form>
-</div>
+    <div id="loginForm" class="form-container">
+        <h2>Iniciar sesión</h2>
+        <form id="login">
+            <div class="input-group">
+                <input type="email" id="username" placeholder="Correo electrónico" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn">Acceder</button>
+        </form>
+    </div>
     
-<!-- Firebase SDK -->
-<script type="module">
-    // Importar Firebase
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
-    import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js"; // Importar Realtime Database
+    <!-- Formulario de Respuestas -->
+    <div id="responsesForm" class="form-container" style="display:none;">
+        <h2>Formulario de Respuestas</h2>
+        <form id="responseForm">
+            <div class="input-group">
+                <textarea id="userResponse" placeholder="Escribe tu respuesta aquí" required></textarea>
+            </div>
+            <button type="submit" class="btn">Enviar Respuesta</button>
+        </form>
 
-    document.addEventListener("DOMContentLoaded", () => {
-        // Configuración de Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAw6_-fB9f3xi6feMwKnY6gejoOqXkvtCE",
-            authDomain: "web-inicio-sesion-c8e9f.firebaseapp.com",
-            databaseURL: "https://web-inicio-sesion-c8e9f-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "web-inicio-sesion-c8e9f",
-            storageBucket: "web-inicio-sesion-c8e9f.firebasestorage.app",
-            messagingSenderId: "422022760273",
-            appId: "1:422022760273:web:20d8e37e976876f1b8b570",
-            measurementId: "G-DXZ08ZYVHY"
-        };
+        <h3>Tus Respuestas</h3>
+        <div id="responseContainer"></div>
+        <button id="logout" class="btn">Cerrar Sesión</button>
+    </div>
 
-        // Inicializar Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Importar Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
+        import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js";
 
-        // Elementos del DOM
-        const responseForm = document.getElementById("responseForm");
-        const responseContainer = document.getElementById("responseContainer");
+        document.addEventListener("DOMContentLoaded", () => {
+            // Configuración de Firebase
+            const firebaseConfig = {
+                apiKey: "AIzaSyAw6_-fB9f3xi6feMwKnY6gejoOqXkvtCE",
+                authDomain: "web-inicio-sesion-c8e9f.firebaseapp.com",
+                databaseURL: "https://web-inicio-sesion-c8e9f-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "web-inicio-sesion-c8e9f",
+                storageBucket: "web-inicio-sesion-c8e9f.firebasestorage.app",
+                messagingSenderId: "422022760273",
+                appId: "1:422022760273:web:20d8e37e976876f1b8b570",
+                measurementId: "G-DXZ08ZYVHY"
+            };
 
-        // Función para cargar respuestas desde Firebase
-        function cargarRespuestas() {
-            responseContainer.innerHTML = ""; // Limpiar respuestas previas
-            const respuestasRef = ref(db, "respuestas");
+            // Inicializar Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getDatabase(app);
 
-            onValue(respuestasRef, (snapshot) => {
-                responseContainer.innerHTML = ""; // Limpiar antes de agregar nuevas respuestas
-                snapshot.forEach((childSnapshot) => {
-                    const respuesta = childSnapshot.val().texto;
-                    const div = document.createElement("div");
-                    div.classList.add("response");
-                    div.textContent = respuesta;
-                    responseContainer.appendChild(div);
-                });
-            });
-        }
+            // Elementos del DOM
+            const loginForm = document.getElementById("loginForm");
+            const responsesForm = document.getElementById("responsesForm");
+            const responseForm = document.getElementById("responseForm");
+            const responseContainer = document.getElementById("responseContainer");
+            const logout = document.getElementById("logout");
 
-        // Enviar respuesta a Firebase
-        responseForm.addEventListener("submit", function(event) {
-            event.preventDefault();
-
-            const userResponse = document.getElementById("userResponse").value.trim();
-            if (userResponse) {
+            // Función para cargar respuestas desde Firebase
+            function cargarRespuestas() {
+                responseContainer.innerHTML = ""; // Limpiar respuestas previas
                 const respuestasRef = ref(db, "respuestas");
-                push(respuestasRef, {
-                    texto: userResponse,
-                    timestamp: Date.now()
-                }).then(() => {
-                    console.log("Respuesta guardada correctamente");
-                    document.getElementById("userResponse").value = ""; // Limpiar campo de texto
-                    cargarRespuestas(); // Recargar respuestas
-                }).catch((error) => {
-                    console.error("Error al guardar respuesta en Firebase:", error);
+
+                onValue(respuestasRef, (snapshot) => {
+                    snapshot.forEach((childSnapshot) => {
+                        const respuesta = childSnapshot.val().texto;
+                        const div = document.createElement("div");
+                        div.classList.add("response");
+                        div.textContent = respuesta;
+                        responseContainer.appendChild(div);
+                    });
                 });
             }
+
+            // Manejo del inicio de sesión
+            const login = document.getElementById("login");
+            login.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const email = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                signInWithEmailAndPassword(auth, email, password)
+                    .then(() => {
+                        loginForm.style.display = "none"; // Ocultar el formulario de inicio de sesión
+                        responsesForm.style.display = "block"; // Mostrar el formulario de respuestas
+                        cargarRespuestas(); // Cargar respuestas
+                    })
+                    .catch((error) => {
+                        alert("Error de autenticación: " + error.message);
+                    });
+            });
+
+            // Enviar respuesta a Firebase
+            responseForm.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const userResponse = document.getElementById("userResponse").value.trim();
+                if (userResponse) {
+                    const respuestasRef = ref(db, "respuestas");
+                    push(respuestasRef, {
+                        texto: userResponse,
+                        timestamp: Date.now()
+                    }).then(() => {
+                        console.log("Respuesta guardada correctamente");
+                        document.getElementById("userResponse").value = ""; // Limpiar campo de texto
+                        cargarRespuestas(); // Recargar respuestas
+                    }).catch((error) => {
+                        console.error("Error al guardar respuesta en Firebase:", error);
+                    });
+                }
+            });
+
+            // Cerrar sesión
+            logout.addEventListener("click", () => {
+                signOut(auth).then(() => {
+                    loginForm.style.display = "block"; // Mostrar el formulario de inicio de sesión
+                    responsesForm.style.display = "none"; // Ocultar el formulario de respuestas
+                });
+            });
+
+            // Comprobar si el usuario está autenticado
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    loginForm.style.display = "none";
+                    responsesForm.style.display = "block";
+                    cargarRespuestas(); // Cargar las respuestas cuando el usuario esté autenticado
+                } else {
+                    loginForm.style.display = "block";
+                    responsesForm.style.display = "none";
+                }
+            });
         });
-
-        // Cargar respuestas al cargar la página
-        cargarRespuestas();
-    });
-</script>
-
+    </script>
 </body>
 </html>
