@@ -68,7 +68,10 @@
           document.getElementById("responsesForm").style.display = "block";
           cargarRespuestas();
         })
-        .catch(error => alert("Error de autenticación: " + error.message));
+        .catch(error => {
+          console.error("Error de autenticación:", error.message);
+          alert("Error de autenticación: " + error.message);
+        });
     });
 
     // 🌟 Manejo de Cierre de Sesión
@@ -83,15 +86,22 @@
     document.getElementById("responseForm").addEventListener("submit", function (event) {
       event.preventDefault();
       let respuesta = document.getElementById("userResponse").value;
-      if (!respuesta.trim()) return;
+      if (!respuesta.trim()) {
+        console.log("Respuesta vacía");
+        return;
+      }
 
+      // Enviar respuesta a Firebase
       push(ref(db, "respuestas"), {
         texto: respuesta,
         timestamp: Date.now()
+      }).then(() => {
+        console.log("Respuesta enviada correctamente");
+        document.getElementById("userResponse").value = ""; // Limpiar el campo
+        cargarRespuestas();
+      }).catch((error) => {
+        console.error("Error al enviar respuesta:", error);
       });
-
-      document.getElementById("userResponse").value = ""; // Limpiar el campo
-      cargarRespuestas();
     });
 
     // 🌟 Cargar Respuestas (Solo visibles para el usuario autenticado)
@@ -113,9 +123,12 @@
     // 🌟 Comprobar si el usuario ya está autenticado
     onAuthStateChanged(auth, user => {
       if (user) {
+        console.log("Usuario autenticado:", user);
         document.getElementById("loginForm").style.display = "none";
         document.getElementById("responsesForm").style.display = "block";
         cargarRespuestas();
+      } else {
+        console.log("No hay usuario autenticado.");
       }
     });
   </script>
