@@ -10,8 +10,16 @@
 
     <!-- Formulario de Inicio de Sesión -->
     <div id="loginForm" class="form-container">
-        <h2>Iniciar sesión (anónimamente)</h2>
-        <button id="loginAnon" class="btn">Iniciar sesión</button>
+        <h2>Iniciar sesión</h2>
+        <form id="login">
+            <div class="input-group">
+                <input type="email" id="username" placeholder="Correo electrónico" required>
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn">Acceder</button>
+        </form>
     </div>
     
     <!-- Formulario de Respuestas -->
@@ -33,7 +41,6 @@
     <script type="module">
         // Importar Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-app.js";
-        import { getAuth, signInAnonymously, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-auth.js";
         import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/11.3.0/firebase-database.js"; // Importar Realtime Database
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -51,7 +58,6 @@
 
             // Inicializar Firebase
             const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
             const db = getDatabase(app);
 
             // Elementos del DOM
@@ -78,17 +84,22 @@
                 });
             }
 
-            // Iniciar sesión de forma anónima
-            document.getElementById("loginAnon").addEventListener("click", () => {
-                signInAnonymously(auth)
-                    .then(() => {
-                        loginForm.style.display = "none";
-                        responsesForm.style.display = "block";
-                        cargarRespuestas();
-                    })
-                    .catch((error) => {
-                        alert("Error al iniciar sesión: " + error.message);
-                    });
+            // Manejo de inicio de sesión (ficticio, solo para mostrar la segunda pantalla)
+            loginForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                // Simular inicio de sesión con cualquier correo y contraseña
+                const email = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+
+                // Aquí, no estamos validando el correo ni la contraseña, simplemente ocultamos el login y mostramos el formulario de respuestas.
+                if (email && password) {
+                    loginForm.style.display = "none";
+                    responsesForm.style.display = "block";
+                    cargarRespuestas();
+                } else {
+                    alert("Por favor ingresa un correo y una contraseña.");
+                }
             });
 
             // Enviar respuesta a Firebase
@@ -113,23 +124,14 @@
 
             // Cerrar sesión
             logout.addEventListener("click", function() {
-                signOut(auth).then(() => {
-                    loginForm.style.display = "block";
-                    responsesForm.style.display = "none";
-                });
+                loginForm.style.display = "block";
+                responsesForm.style.display = "none";
             });
 
-            // Comprobar si el usuario está autenticado
-            onAuthStateChanged(auth, (user) => {
-                if (user) {
-                    loginForm.style.display = "none";
-                    responsesForm.style.display = "block";
-                    cargarRespuestas();
-                }
-            });
+            // Cargar respuestas al cargar la página
+            cargarRespuestas();
         });
     </script>
 
 </body>
 </html>
-
