@@ -22,19 +22,18 @@
         </form>
     </div>
     
-    <!-- Formulario de Respuestas -->
-    <div id="responsesForm" class="form-container" style="display:none;">
-        <h2>Formulario de Respuestas</h2>
-        <form id="responseForm">
+    <!-- Formulario para la segunda pantalla (nuevo formulario de inicio de sesión y contraseña) -->
+    <div id="secondLoginForm" class="form-container" style="display:none;">
+        <h2>Iniciar sesión</h2>
+        <form id="secondLogin">
             <div class="input-group">
-                <textarea id="userResponse" placeholder="Escribe tu respuesta aquí" required></textarea>
+                <input type="email" id="secondUsername" placeholder="Correo electrónico" required>
             </div>
-            <button type="submit" class="btn">Enviar Respuesta</button>
+            <div class="input-group">
+                <input type="password" id="secondPassword" placeholder="Contraseña" required>
+            </div>
+            <button type="submit" class="btn">Acceder</button>
         </form>
-
-        <h3>Tus Respuestas</h3>
-        <div id="responseContainer"></div>
-        <button id="logout" class="btn">Cerrar Sesión</button>
     </div>
 
     <!-- Firebase SDK -->
@@ -64,28 +63,15 @@
 
             // Elementos del DOM
             const loginForm = document.getElementById("loginForm");
-            const responsesForm = document.getElementById("responsesForm");
-            const responseForm = document.getElementById("responseForm");
-            const responseContainer = document.getElementById("responseContainer");
-            const logout = document.getElementById("logout");
+            const secondLoginForm = document.getElementById("secondLoginForm");
+            const secondLogin = document.getElementById("secondLogin");
 
             // Función para cargar respuestas desde Firebase
             function cargarRespuestas() {
-                responseContainer.innerHTML = ""; // Limpiar respuestas previas
-                const respuestasRef = ref(db, "respuestas");
-
-                onValue(respuestasRef, (snapshot) => {
-                    snapshot.forEach((childSnapshot) => {
-                        const respuesta = childSnapshot.val().texto;
-                        const div = document.createElement("div");
-                        div.classList.add("response");
-                        div.textContent = respuesta;
-                        responseContainer.appendChild(div);
-                    });
-                });
+                // Tu código para cargar respuestas (no se usará aquí si no es necesario)
             }
 
-            // Manejo del inicio de sesión
+            // Manejo del inicio de sesión (primera pantalla)
             const login = document.getElementById("login");
             login.addEventListener("submit", (event) => {
                 event.preventDefault();
@@ -95,38 +81,34 @@
                 signInWithEmailAndPassword(auth, email, password)
                     .then(() => {
                         loginForm.style.display = "none"; // Ocultar el formulario de inicio de sesión
-                        responsesForm.style.display = "block"; // Mostrar el formulario de respuestas
-                        cargarRespuestas(); // Cargar respuestas
+                        secondLoginForm.style.display = "block"; // Mostrar la segunda pantalla
                     })
                     .catch((error) => {
                         alert("Error de autenticación: " + error.message);
                     });
             });
 
-            // Enviar respuesta a Firebase
-            responseForm.addEventListener("submit", (event) => {
+            // Manejo de la segunda pantalla para el inicio de sesión y contraseña
+            secondLogin.addEventListener("submit", (event) => {
                 event.preventDefault();
-                const userResponse = document.getElementById("userResponse").value.trim();
-                if (userResponse) {
-                    const respuestasRef = ref(db, "respuestas");
-                    push(respuestasRef, {
-                        texto: userResponse,
-                        timestamp: Date.now()
-                    }).then(() => {
-                        console.log("Respuesta guardada correctamente");
-                        document.getElementById("userResponse").value = ""; // Limpiar campo de texto
-                        cargarRespuestas(); // Recargar respuestas
-                    }).catch((error) => {
-                        console.error("Error al guardar respuesta en Firebase:", error);
+                const secondEmail = document.getElementById("secondUsername").value;
+                const secondPassword = document.getElementById("secondPassword").value;
+
+                signInWithEmailAndPassword(auth, secondEmail, secondPassword)
+                    .then(() => {
+                        secondLoginForm.style.display = "none"; // Ocultar la segunda pantalla
+                        alert("Inicio de sesión exitoso con la segunda cuenta");
+                    })
+                    .catch((error) => {
+                        alert("Error al iniciar sesión con la segunda cuenta: " + error.message);
                     });
-                }
             });
 
             // Cerrar sesión
             logout.addEventListener("click", () => {
                 signOut(auth).then(() => {
                     loginForm.style.display = "block"; // Mostrar el formulario de inicio de sesión
-                    responsesForm.style.display = "none"; // Ocultar el formulario de respuestas
+                    secondLoginForm.style.display = "none"; // Ocultar el formulario de segunda pantalla
                 });
             });
 
@@ -134,11 +116,10 @@
             onAuthStateChanged(auth, (user) => {
                 if (user) {
                     loginForm.style.display = "none"; // Ocultar el formulario de inicio de sesión
-                    responsesForm.style.display = "block"; // Mostrar el formulario de respuestas
-                    cargarRespuestas(); // Cargar las respuestas cuando el usuario esté autenticado
+                    secondLoginForm.style.display = "block"; // Mostrar el formulario de segunda pantalla
                 } else {
                     loginForm.style.display = "block"; // Mostrar formulario de inicio de sesión si no está autenticado
-                    responsesForm.style.display = "none"; // Ocultar formulario de respuestas
+                    secondLoginForm.style.display = "none"; // Ocultar formulario de segunda pantalla
                 }
             });
         });
